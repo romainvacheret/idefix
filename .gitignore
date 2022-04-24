@@ -1,0 +1,9 @@
+*.pyc
+# temporary solution to launch Asto
+script.sh 
+# APR tools
+tools/
+# analyzed projects 
+projects/
+# Astor results
+output_astor/ 
