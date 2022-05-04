@@ -1,11 +1,11 @@
 from os import getcwd
 from os.path import join
-from typing import Final, NoReturn
+from typing import Final, Union
 from subprocess import run, DEVNULL, PIPE
 
 from src.tools.tool_engine import ToolEngine
 
-def _write_file(filename: str, content: str) -> NoReturn:
+def _write_file(filename: str, content: str) -> None:
 	with open(filename, 'w') as file:
 		file.write(content)
 
@@ -26,11 +26,13 @@ class AstorEngine(ToolEngine):
 			f'{join(getcwd(), self.tool_folder, "target/astor-*-jar-with-dependencies.jar")}',
 			'fr.inria.main.evolution.AstorMain']
 
-	def compile_program(self, path: str, command: list[str]=None) -> bool:
-		command = command or ['mvn', 'clean', 'compile', 'test', '-DskipTests']
-		result = run(command, cwd=path, stdout=DEVNULL, stderr=PIPE)
-		print(result)
+	def compile_program(self, path: str, command: Union[str, list[str]]=None) -> bool:
+		if command is None:
+			command = ['mvn', 'clean', 'compile', 'test', '-DskipTests']
+		elif isinstance(command, str):
+			command = command.split(' ')
 
+		result = run(command, cwd=path, stdout=DEVNULL, stderr=PIPE)
 		return result.stderr == b''
 
 	def run(self, parameters: dict) -> bool:
@@ -51,4 +53,3 @@ class AstorEngine(ToolEngine):
 		result = run(['sh', script_name], stdout=DEVNULL, stderr=PIPE)
 
 		return result.stderr == b''
-

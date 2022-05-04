@@ -3,8 +3,9 @@ from typing import Final
 
 class ToolEngine(ABC):
 	TOOLS_FOLDER: Final = 'tools'
+	PROJECTS_FOLDER: Final = 'projects'
 
-	def __init__(self):
+	def __init__(self) -> None:
 		self.base_command = None	
 		self.tool_folder = None
 

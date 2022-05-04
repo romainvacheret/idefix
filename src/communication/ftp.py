@@ -6,6 +6,8 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
 
+from src.communication.server_wrapper import ServerWrapper
+
 SERVER_HOST: Final = '127.0.0.1'
 SERVER_PORT: Final = 21
 SERVER_USER: Final = 'idefix'
@@ -13,7 +15,7 @@ SERVER_PSWD: Final = 'idefix'
 FOLDER_PATH: Final = 'projects'
 
 
-class FTPServerWrapper:
+class FTPServerWrapper(ServerWrapper):
 	def __init__(self) -> None:
 		self._authorizer = DummyAuthorizer()
 		self._handler = FTPHandler
