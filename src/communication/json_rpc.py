@@ -4,7 +4,7 @@ from os import getcwd
 from os.path import join
 
 from src.communication.server_wrapper import ServerWrapper
-from src.utils.files import Path, convert_to_absolute_path
+from src.utils.files import Path, convert_to_absolute_path, list_generated_variants
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -32,6 +32,12 @@ def run_analysis(engine: ToolEngine, parameters: dict) -> bool:
 	return engine.run(_update_parameters(parameters, engine.PROJECTS_FOLDER))
 
 
+def list_diffs(output_folder: Path, project_name: str) -> list[dict]:
+	path = join(output_folder, 'output_astor', f'AstorMain-{project_name}', 'src')
+	print(path)
+	return list_generated_variants(path)
+
+
 class JsonRpcServerWrapper(ServerWrapper):
 	def __init__(self, engine: ToolEngine) -> None:
 		self._engine = engine
@@ -51,6 +57,8 @@ class JsonRpcServerWrapper(ServerWrapper):
 			self._engine, path, command)
 		dispatcher['analyze'] = lambda parameters: run_analysis(
 			self._engine, parameters)
+		dispatcher['list-diffs'] = lambda project_name: list_diffs(
+			self._engine.PROJECTS_FOLDER, project_name)
 
 	def serve(self) -> NoReturn:
 		run_simple(SERVER_HOST, SERVER_PORT, self._application)
