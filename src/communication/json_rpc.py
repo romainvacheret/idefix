@@ -1,8 +1,10 @@
 from __future__ import annotations
 from typing import NoReturn, Final
+from os import getcwd
+from os.path import join
 
 from src.communication.server_wrapper import ServerWrapper
-from src.utils.files import convert_to_absolute_path
+from src.utils.files import Path, convert_to_absolute_path
 
 from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
@@ -15,6 +17,19 @@ SERVER_PORT: Final = 8080
 def compile_program(engine, path, command) -> bool:
 	path = convert_to_absolute_path([engine.PROJECTS_FOLDER, path])
 	return engine.compile_program(path, command)
+
+
+def _update_parameters(parameters: dict, project_folder_path: Path) -> dict:
+	project_full_path = join(getcwd(), project_folder_path)
+	parameters['-location'] = join(project_full_path, parameters['-location'])
+	parameters['-dependencies'] = join(project_full_path, parameters['-dependencies'])
+	
+	return parameters
+	
+
+def run_analysis(engine: ToolEngine, parameters: dict) -> bool:
+	# TODO: check if the compilation was successfull
+	return engine.run(_update_parameters(parameters, engine.PROJECTS_FOLDER))
 
 
 class JsonRpcServerWrapper(ServerWrapper):
@@ -34,6 +49,8 @@ class JsonRpcServerWrapper(ServerWrapper):
 		dispatcher['ping'] = lambda x: x
 		dispatcher['compile'] = lambda path, command: compile_program(
 			self._engine, path, command)
+		dispatcher['analyze'] = lambda parameters: run_analysis(
+			self._engine, parameters)
 
 	def serve(self) -> NoReturn:
 		run_simple(SERVER_HOST, SERVER_PORT, self._application)

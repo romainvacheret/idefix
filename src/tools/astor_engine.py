@@ -1,4 +1,4 @@
-from os import getcwd
+from os import getcwd, environ
 from os.path import join
 from typing import Final, Union
 from subprocess import run, DEVNULL, PIPE
@@ -31,7 +31,6 @@ class AstorEngine(ToolEngine):
 			command = ['mvn', 'clean', 'compile', 'test', '-DskipTests']
 		elif isinstance(command, str):
 			command = command.split(' ')
-
 		result = run(command, cwd=path, stdout=DEVNULL, stderr=PIPE)
 		return result.stderr == b''
 
@@ -44,12 +43,20 @@ class AstorEngine(ToolEngine):
 			self.VALID_PARAMETERS,
 			valid_parameters)
 		command_as_string = ' '.join(command)
+		# Note: for some reason it may not take the right Java version if not
+		# explicitely specified
+		command_as_string = '\n'.join((f'export JAVA_HOME={environ["JAVA_HOME"]}', 
+			command_as_string))
+		print(command_as_string)
 
 		# For some reason running the command from Python does not work
 		# execute a script instead
-		_write_file(script_name, command_as_string)
+		script_path = join(self.PROJECTS_FOLDER, 'script.sh')
+		_write_file(script_path, command_as_string)
 		run(['chmod', '777', script_name])
+		print('script written')
 
-		result = run(['sh', script_name], stdout=DEVNULL, stderr=PIPE)
+		result = run(['sh', script_name],cwd=self.PROJECTS_FOLDER ,stdout=DEVNULL, stderr=PIPE)
+		print('err', result.stderr)
 
 		return result.stderr == b''
