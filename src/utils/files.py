@@ -22,8 +22,11 @@ def _read_file(path: Path) -> str:
 	with open(path, 'r') as file:
 		return file.read()
 
+def _parse_path_from_diff(content):
+	return content.split('\n')[0][4:]
 
 def list_generated_variants(folder: Path) -> list[dict]:
 	variants = _select_variants_folders(folder)
-	return [{'id': variant, 'diff': _read_file(join(folder, variant, 'patch.diff'))} \
-		for variant in variants]
+	return [{'id': variant, 
+		'diff': (content := _read_file(join(folder, variant, 'patch.diff'))), 
+		'path': _parse_path_from_diff(content)} for variant in variants]
