@@ -7,6 +7,7 @@
 - JDK 8
 - Maven
 - Python 3.9
+- [The Visual Studio Code extension](https://github.com/RomainVacheret/idefix-vsc)
 
 ## Installation
 ```bash
@@ -15,6 +16,6 @@ cd idefix
 ./install_dependencies.sh
 python3 -m pip install -r requirements.txt
 
-# Start the project with
-python3 idefix.py
+# Note: sudo priviledges are required for the FTP server
+sudo -E python3 idefix.py
 ```
