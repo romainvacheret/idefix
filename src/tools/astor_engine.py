@@ -31,8 +31,9 @@ class AstorEngine(ToolEngine):
 			command = ['mvn', 'clean', 'compile', 'test', '-DskipTests']
 		elif isinstance(command, str):
 			command = command.split(' ')
-		result = run(command, cwd=path, stdout=DEVNULL, stderr=PIPE)
-		return result.stderr == b''
+		# Maven writes error to stdout and not to stderr
+		result = run(command, cwd=path, stdout=PIPE)
+		return 'BUILD FAILURE' not in result.stdout.decode('utf-8')
 
 	def run(self, parameters: dict) -> bool:
 		valid_parameters = {param: value for param, value in parameters.items() \
